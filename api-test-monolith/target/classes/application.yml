@@ -1,0 +1,32 @@
+debug: true 
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/shoppinglist
+    username: prano
+    password: prano
+    driver-class-name: org.postgresql.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://auth.compressibleflowcalculator.com/realms/shoppinglist/protocol/openid-connect/certs
+          issuer-uri: https://auth.compressibleflowcalculator.com/realms/shoppinglist
+  jpa:
+    hibernate:
+      ddl-auto:   create # <create | create-drop | update | validate | none>
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      bootstrap-servers:  localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: spring
