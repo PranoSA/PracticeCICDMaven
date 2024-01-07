@@ -25,6 +25,7 @@ pipeline {
         stage('Build AMI with Packer') {
             steps {
                 script {
+                    sh "packer init packer.pkr.hcl"
                     // Run Packer build and capture output
                     def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
                     // Extract AMI ID from Packer output
