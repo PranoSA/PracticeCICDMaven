@@ -12,7 +12,8 @@ source "amazon-ebs" "ubuntu" {
   region        = "us-west-2"
   source_ami_filter {
     filters = {
-      name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
+      #name                = "ubuntu/images/*ubuntu-jammy-22.04-amd64-server-*"
+      name = "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-20230516"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
@@ -20,7 +21,7 @@ source "amazon-ebs" "ubuntu" {
     owners      = ["099720109477"]
   }
   ssh_username = "ubuntu"
- ami_name = "packer-example-${replace(timestamp(), ":", "_")}"
+  ami_name = "packer-example-${replace(timestamp(), ":", "_")}"
 }
 
 variable "jar_file" {
@@ -38,10 +39,22 @@ build {
 
   provisioner "shell" {
     inline = [
+      #"sudo rm -rf /var/lib/apt/lists/*",
+      "sudo apt-get clean",
+      "sudo apt-get autoclean",
       "sudo apt-get update",
-      "sudo apt-get install -y openjdk-17-jdk openjdk-17-jre git",
-      "sudo apt-get install maven",
-      "git clone https://github.com:PranoSA/PracticeCICDMaven.git",
+      "sudo lsb_release -a",
+      "cat /etc/apt/sources.list",
+      "ls /etc/apt/sources.list.d",
+      #"sudo apt-get install -y openjdk-17-jdk git",
+      #"sudo apt-get install java-common",
+      #"sudo apt-get install -y openjdk-17-jre-headless",
+      #"sudo apt-get -y install default-jre",
+      #"sudo apt-get -y install maven",
+      #"sudo apt-get install -y default-jre",s
+      #"sudo apt-get install -y openjdk-17-jdk-headless git",
+      "sudo apt-get install -y default-jre git maven",
+      "git clone git@github.com:PranoSA/PracticeCICDMaven.git",
       "cd api-test-monolith",
       "mvn package",
       "sudo mv target/${var.jar_file} /opt/",

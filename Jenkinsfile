@@ -4,6 +4,8 @@ pipeline {
     environment {
         PACKER_CREDENTIALS_ID = 'aws-credentials'
         PACKER_EXECUTABLE = '/path/to/packer' // Optional if Packer is in the PATH
+        AWS_CREDENTIALS_FILE = credentials('AWS_PACKER_TERRAFORM')
+        AWS_REGION = 'us-west-2'
     }
 
     // 
@@ -25,7 +27,7 @@ pipeline {
         stage('Build AMI with Packer') {
             steps {
                 script {
-                    withEnv(['AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID}', 'AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY}', 'AWS_REGION=${env.AWS_REGION}']) {
+                    withCredentials([file(credentialsId: 'AWS_PACKER_TERRAFORM', variable: 'AWS_CREDENTIALS_FILE')])  {
                         sh "packer init packer.pkr.hcl"
                         // Run Packer build and capture output
                         def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
