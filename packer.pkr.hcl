@@ -20,7 +20,7 @@ source "amazon-ebs" "ubuntu" {
     owners      = ["099720109477"]
   }
   ssh_username = "ubuntu"
-  ami_name      = "packer-example-${timestamp()}"
+  ami_name = "packer-example-${clean_resource_name(timestamp())}"
 }
 
 variable "jar_file" {
