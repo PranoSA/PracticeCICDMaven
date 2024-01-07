@@ -27,7 +27,7 @@ pipeline {
         stage('Build AMI with Packer') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'AWS_PACKER_TERRAFORM', variable: 'AWS_CREDENTIALS_FILE')])  {
+                   withAWS(credentials: 'PACKER_TERRAFORM_CREDENTIALS', region: env.AWS_REGION) {
                         sh "packer init packer.pkr.hcl"
                         // Run Packer build and capture output
                         def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
@@ -82,10 +82,7 @@ pipeline {
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
-                                withCredentials([
-                string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
-                string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
-            ])
+                                withAWS(credentials: 'PACKER_TERRAFORM_CREDENTIALS', region: env.AWS_REGION)
                     // Terraform plugin steps
                     terraformCLI(
                         workingDirectory: 'terraform',
