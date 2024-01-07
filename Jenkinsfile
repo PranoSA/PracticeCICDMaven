@@ -22,7 +22,7 @@ pipeline {
             steps {
                 build {
                     // Run Packer build and capture output
-                    def packerOutput = sh(script: "packer build packer.json", returnStdout: true).trim()
+                    def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
                     // Extract AMI ID from Packer output
                     def amiId = packerOutput.readLines().find { it =~ /AMI: (ami-.*)/ }?.replaceAll(/.*AMI: (ami-.*)/, '$1')
                     env.AMI_ID = amiId
