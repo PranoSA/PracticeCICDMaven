@@ -13,8 +13,9 @@ pipeline {
         stage("Unit Test Maven Build"){
             steps{
                 withMaven(maven: 'Maven-3.9.4') {
-                    sh "cd api-test-monolith"
-                    sh "mvn test"
+                    dir("cd api-test-monolith"){
+                        sh "mvn test"
+                    }
                 }
             }
         }
