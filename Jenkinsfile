@@ -79,15 +79,17 @@ pipeline {
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
+                                withCredentials([
+                string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+            ])
                     // Terraform plugin steps
                     terraformCLI(
-                        credentialsId: env.TF_CREDENTIALS_ID,
                         workingDirectory: 'terraform',
                         command: 'init'
                     )
 
                     terraformCLI(
-                        credentialsId: env.TF_CREDENTIALS_ID,
                         workingDirectory: 'terraform',
                         command: 'apply',
                         options: [
