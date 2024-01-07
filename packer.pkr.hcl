@@ -39,7 +39,8 @@ build {
   provisioner "shell" {
     inline = [
       "sudo apt-get update",
-      "sudo apt-get install -y openjdk-17-jdk openjdk-17-jre git maven",
+      "sudo apt-get install -y openjdk-17-jdk openjdk-17-jre git",
+      "sudo apt-get install maven",
       "git clone https://github.com:PranoSA/PracticeCICDMaven.git",
       "cd api-test-monolith",
       "mvn package",

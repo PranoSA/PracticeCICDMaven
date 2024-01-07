@@ -25,16 +25,17 @@ pipeline {
         stage('Build AMI with Packer') {
             steps {
                 script {
-                    sh "packer init packer.pkr.hcl"
-                    // Run Packer build and capture output
-                    def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
-                    // Extract AMI ID from Packer output
-                    def amiId = packerOutput.readLines().find { it =~ /AMI: (ami-.*)/ }?.replaceAll(/.*AMI: (ami-.*)/, '$1')
-                    env.AMI_ID = amiId
+                    withEnv(['AWS_ACCESS_KEY_ID=${env.AWS_ACCESS_KEY_ID}', 'AWS_SECRET_ACCESS_KEY=${env.AWS_SECRET_ACCESS_KEY}', 'AWS_REGION=${env.AWS_REGION}']) {
+                        sh "packer init packer.pkr.hcl"
+                        // Run Packer build and capture output
+                        def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
+                        // Extract AMI ID from Packer output
+                        def amiId = packerOutput.readLines().find { it =~ /AMI: (ami-.*)/ }?.replaceAll(/.*AMI: (ami-.*)/, '$1')
+                        env.AMI_ID = amiId
+                    }
                 }
             }
         }
-
         /*stage('Build and Run Docker Image') {
             steps {
                 script {
