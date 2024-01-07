@@ -1,0 +1,29 @@
+# Use Ubuntu as the base image
+FROM ubuntu:latest
+
+# Set non-interactive mode during installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update and install necessary packages
+RUN apt-get update && \
+    apt-get install -y \
+    wget \
+    unzip \
+    openjdk-11-jdk
+
+# Install Jenkins
+ENV JENKINS_VERSION=2.426
+ENV JENKINS_JAR_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.jar
+ENV JENKINS_JAR_PATH=/usr/share/jenkins/jenkins.jar
+RUN mkdir -p /usr/share/jenkins \
+    && wget -q -O $JENKINS_JAR_PATH $JENKINS_JAR_URL \
+    && echo $JENKINS_VERSION > /usr/share/jenkins/jenkins.jar.version
+
+# Create a directory for Jenkins data
+RUN mkdir /var/jenkins_home && chown -R 1000:1000 /var/jenkins_home
+
+# Switch back to the Jenkins user
+USER 1000
+
+# Start Jenkins
+CMD ["java", "-jar", "/usr/share/jenkins/jenkins.jar"]
