@@ -1,0 +1,8 @@
+[Unit]
+Description=Java Application
+
+[Service]
+ExecStart=/usr/bin/java -jar /opt/${var.jar_file}.jar
+
+[Install]
+WantedBy=multi-user.target
