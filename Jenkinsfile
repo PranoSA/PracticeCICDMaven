@@ -4,6 +4,8 @@ pipeline {
     environment {
         PACKER_CREDENTIALS_ID = 'aws-credentials'
         PACKER_EXECUTABLE = '/path/to/packer' // Optional if Packer is in the PATH
+        AWS_CREDENTIALS_FILE = credentials('AWS_PACKER_TERRAFORM')
+        AWS_REGION = 'us-west-2'
     }
 
     // 
@@ -12,7 +14,11 @@ pipeline {
 
         stage("Unit Test Maven Build"){
             steps{
-                sh "mvn test"
+                withMaven(maven: 'Maven-3.9.4') {
+                    dir("api-test-monolith"){
+                        sh "mvn test"
+                    }
+                }
             }
         }
 
@@ -20,16 +26,18 @@ pipeline {
 
         stage('Build AMI with Packer') {
             steps {
-                build {
-                    // Run Packer build and capture output
-                    def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
-                    // Extract AMI ID from Packer output
-                    def amiId = packerOutput.readLines().find { it =~ /AMI: (ami-.*)/ }?.replaceAll(/.*AMI: (ami-.*)/, '$1')
-                    env.AMI_ID = amiId
+                script {
+                   withAWS(credentials: 'PACKER_TERRAFORM_CREDENTIALS', region: env.AWS_REGION) {
+                        sh "packer init packer.pkr.hcl"
+                        // Run Packer build and capture output
+                        def packerOutput = sh(script: "packer build packer.pkr.hcl", returnStdout: true).trim()
+                        // Extract AMI ID from Packer output
+                        def amiId = packerOutput.readLines().find { it =~ /AMI: (ami-.*)/ }?.replaceAll(/.*AMI: (ami-.*)/, '$1')
+                        env.AMI_ID = amiId
+                    }
                 }
             }
         }
-
         /*stage('Build and Run Docker Image') {
             steps {
                 script {
@@ -74,15 +82,14 @@ pipeline {
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
+                                withAWS(credentials: 'PACKER_TERRAFORM_CREDENTIALS', region: env.AWS_REGION)
                     // Terraform plugin steps
                     terraformCLI(
-                        credentialsId: env.TF_CREDENTIALS_ID,
                         workingDirectory: 'terraform',
                         command: 'init'
                     )
 
                     terraformCLI(
-                        credentialsId: env.TF_CREDENTIALS_ID,
                         workingDirectory: 'terraform',
                         command: 'apply',
                         options: [
