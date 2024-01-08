@@ -33,42 +33,29 @@ variable "jar_file" {
 
 variable "systemd_file" {
     type = string 
-    default = "build/myapp.service"
+    default = "myapp.service"
 }   
 
 build {
   sources = ["source.amazon-ebs.ubuntu"]
 
+  provisioner "file" {
+    source      = "build/my-app.service"
+    destination = "/tmp/myapp.service"
+  }
+
   provisioner "shell" {
     inline = [
-      #"sudo rm -rf /var/lib/apt/lists/*",
-      "sudo apt-get update -y",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get update",
-      #"sudo lsb_release -a",
-      #"cat /etc/apt/sources.list",
-      #"ls /etc/apt/sources.list.d",
-      #"sudo apt-get install -y openjdk-17-jdk git",
-      #"sudo apt-get install java-common",
-      #"sudo apt-get install -y openjdk-17-jre-headless",
-      #"sudo apt-get -y install default-jre",
-      #"sudo apt-get -y install maven",
-      #"sudo apt-get install -y default-jre",s
-      #"sudo apt-get install -y openjdk-17-jdk-headless git",
-     # "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y default-jre",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-17-jdk",
-      "sudo DEBIAN_FRONTEND=noninteractive apt-get install -y maven git",
+      "sudo apt-get -y update",
+      "sudo apt-get -y update",
+      "sudo  apt-get install -y openjdk-17-jdk",
+      "sudo apt-get install -y maven git",
       "git clone https://github.com/PranoSA/PracticeCICDMaven.git",
       "cd PracticeCICDMaven/api-test-monolith",
-     # "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64",
-     "sudo apt-get update -y",
-     "sudo apt-get install -y maven",
-      "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 && mvn clean install && mvn package",
-      "echo $JAVA_HOME",
-      "echo java --version",
-      "echo mvn --version",
-      "echo javac --version",
+      "export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64",
+      "mvn package",
       "sudo mv target/${var.jar_file} /opt/",
-      "sudo mv ${var.systemd_file} /etc/systemd/system/myapp.service",
+      "sudo mv /tmp/myapp.service /etc/systemd/system/myapp.service",
       "sudo rm -R src/ pom.xml target/",
       "sudo systemctl enable myapp.service"
     ]
