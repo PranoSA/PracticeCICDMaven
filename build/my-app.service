@@ -2,7 +2,7 @@
 Description=Java Application
 
 [Service]
-ExecStart=/usr/bin/java -jar /opt/${var.jar_file}.jar
+ExecStart=/usr/bin/java -jar /opt/api-test-monolith-1.0-SNAPSHOT.jar
 
 [Install]
 WantedBy=multi-user.target
